@@ -5,7 +5,13 @@ from smbus2 import i2c_msg
 import numpy as np
 import time
 from collections import namedtuple
+import json
+from datetime import datetime
 
+def date_info():
+    now = datetime.now()
+    dt_string = now.strftime('%d/%m/%Y %H:%M:%S ')
+    return dt_string
 
 def extract_measurement(i, measurement):
     return np.array(list(measurement))[i]
@@ -135,6 +141,10 @@ class SCD30():
             humidity_measurement = get_measurement(measurement, humidity_list)
 
             if co2_measurement and humidity_measurement and temperature_measurement:
+                with open('test.json', 'a') as test:
+                    test.write(date_info())
+                    json.dump(to_name_tuple(co2_measurement, humidity_measurement, temperature_measurement), test)
+                    test.write('\n')
                 return to_name_tuple(co2_measurement, humidity_measurement, temperature_measurement)
             else:
                 return None
@@ -155,6 +165,6 @@ if __name__ == "__main__":
                 print(scd30.get_scd30_measurements())
             else:
                 print("nope")
-            time.sleep(5)
+            time.sleep(60)
     except (KeyboardInterrupt, SystemExit):
         print("Stopped")
